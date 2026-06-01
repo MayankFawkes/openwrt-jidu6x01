@@ -1,4 +1,4 @@
-name: Daily Build for JIDU6101 and JIDU6J01
+name: Immortal Build for JIDU6101 and JIDU6J01
 
 on:
   push:
@@ -27,10 +27,10 @@ jobs:
     - name: Do Build
       env:
         DEVICE_CONFIG: ${{ matrix.device.config }}
-      run: chmod +x build.sh; bash build.sh
+      run: chmod +x build-immortal.sh; bash build-immortal.sh
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: openwrt-${{ matrix.device.name }}
-        path: openwrt/bin/targets/mediatek/filogic/openwrt*.bin
+        name: immortalwrt-${{ matrix.device.name }}
+        path: immortalwrt/bin/targets/mediatek/filogic/immortalwrt*.bin

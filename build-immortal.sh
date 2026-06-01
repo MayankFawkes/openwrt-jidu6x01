@@ -1,0 +1,38 @@
+#!/bin/bash
+set -e
+
+REPO_DIR=$(pwd)
+
+sudo apt update
+sudo apt install -y build-essential clang flex bison g++ gawk \
+gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev \
+python3-setuptools rsync swig unzip zlib1g-dev file wget ccache
+
+git clone https://github.com/immortalwrt/immortalwrt.git
+cd immortalwrt
+
+git checkout v25.12.0
+
+git config --global user.email "ci@build.local"
+git config --global user.name "CI Builder"
+
+# Fetch the PR
+git fetch https://github.com/openwrt/openwrt.git pull/23510/head:pr-23510
+
+# Get only Jio-related commits and cherry-pick them dynamically
+git log pr-23510 --oneline --grep="jio\|jidu" --regexp-ignore-case --format="%H"| tac | \
+  grep -v $(git log --format="%H" | head -100 | tr '\n' '\|' | sed 's/|$//') | \
+  xargs git cherry-pick -X theirs
+
+ls target/linux/mediatek/dts/ | grep jio
+
+./scripts/feeds update -a
+./scripts/feeds install -a
+
+# Copy config and inject ccache dir dynamically
+cp $REPO_DIR/${DEVICE_CONFIG} .config
+
+make defconfig
+make -j$(nproc) V=s
+
+ls bin/targets/mediatek/filogic/
