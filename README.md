@@ -1,4 +1,4 @@
-# OpenWrt Stable JioRouter AX6000 JIDU6x01
+# OpenWrt/ImmortalWrt Stable JioRouter AX6000 JIDU6x01
  
 | Config | Devices |
 |---|---|
