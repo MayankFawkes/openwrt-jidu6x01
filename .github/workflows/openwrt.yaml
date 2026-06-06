@@ -6,6 +6,10 @@ on:
   schedule:
     - cron: "0 0 * * *" # At 12:00 AM
 
+env:
+  CCACHE_DIR: /home/runner/.ccache 
+
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,7 +30,7 @@ jobs:
     - name: Setup ccache
       uses: actions/cache@v4
       with:
-        path: openwrt/.ccache
+        path: ${{ env.CCACHE_DIR }}
         key: ccache-openwrt-${{ runner.os }}-${{ matrix.device.name }}-${{ github.sha }}
         restore-keys: |
           ccache-openwrt-${{ runner.os }}-${{ matrix.device.name }}-
@@ -34,6 +38,7 @@ jobs:
     - name: Do Build
       env:
         DEVICE_CONFIG: ${{ matrix.device.config }}
+        CCACHE_DIR: ${{ env.CCACHE_DIR }}
       run: chmod +x openwrt.sh; bash openwrt.sh
 
     - name: Build Summary
@@ -87,13 +92,13 @@ jobs:
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         echo "  🗂️  ccache Contents"
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        tree -L 1 .ccache/
+        tree -L 1 "$CCACHE_DIR"
 
         echo ""
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         echo "  💾 ccache Size"
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        du -hs .ccache/
+        du -hs "$CCACHE_DIR"
 
         echo ""
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

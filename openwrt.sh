@@ -2,6 +2,7 @@
 set -e
 
 REPO_DIR=$(pwd)
+CCACHE_DIR="${CCACHE_DIR}"
 
 sudo apt update
 sudo apt install -y build-essential clang flex bison g++ gawk \
@@ -29,6 +30,11 @@ git log pr-23510 --oneline --grep="jio\|jidu" --regexp-ignore-case --format="%H"
 
 # Copy config and inject ccache dir dynamically
 cp $REPO_DIR/${DEVICE_CONFIG} .config
+
+sed -i '/CONFIG_CCACHE_DIR/d' .config
+echo "CONFIG_CCACHE_DIR=\"${CCACHE_DIR}\"" >> .config
+
+echo "ccache dir set to: ${CCACHE_DIR}"
 
 make defconfig
 make -j$(nproc)
