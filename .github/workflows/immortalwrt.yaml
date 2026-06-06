@@ -31,10 +31,27 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ env.CCACHE_DIR }}
-        key: ccache-immortalwrt-${{ runner.os }}-${{ matrix.device.name }}-${{ github.sha }}
+        key: ccache-immortalwrt-${{ runner.os }}-${{ matrix.device.name }}-${{ github.ref_name }}
         restore-keys: |
           ccache-immortalwrt-${{ runner.os }}-${{ matrix.device.name }}-
 
+    - name: Restore ccache stats
+      if: always()
+      run: |
+        cd immortalwrt
+        echo ""
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "  🗂️  ccache Contents"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        tree -L 1 "$CCACHE_DIR"
+
+        echo ""
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "  💾 ccache Size"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        du -hs "$CCACHE_DIR"
+        echo ""
+        
     - name: Do Build
       env:
         DEVICE_CONFIG: ${{ matrix.device.config }}
