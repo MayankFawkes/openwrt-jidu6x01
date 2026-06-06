@@ -37,6 +37,17 @@ echo "CONFIG_CCACHE_DIR=\"${CCACHE_DIR}\"" >> .config
 echo "ccache dir set to: ${CCACHE_DIR}"
 
 make defconfig
+
+# Verify after defconfig
+echo "=== CCACHE config in .config ==="
+grep "CCACHE" .config
+
+echo "=== CCACHE_DIR env ==="
+echo $CCACHE_DIR
+
+echo "=== Cache dir contents BEFORE build ==="
+ls -la ${CCACHE_DIR} 2>/dev/null || echo "Cache dir is EMPTY or does not exist"
+
 make -j$(nproc)
 
 echo "Build completed successfully! Artifacts are located in bin/targets/mediatek/filogic/"
