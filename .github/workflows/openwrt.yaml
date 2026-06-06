@@ -38,7 +38,6 @@ jobs:
     - name: Restore ccache stats
       if: always()
       run: |
-        cd immortalwrt
         echo ""
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         echo "  🗂️  ccache Contents"
@@ -51,7 +50,7 @@ jobs:
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         du -hs "$CCACHE_DIR"
         echo ""
-        
+
     - name: Do Build
       env:
         DEVICE_CONFIG: ${{ matrix.device.config }}
