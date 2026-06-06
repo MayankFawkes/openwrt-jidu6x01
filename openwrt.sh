@@ -33,4 +33,4 @@ cp $REPO_DIR/${DEVICE_CONFIG} .config
 make defconfig
 make -j$(nproc)
 
-ls bin/targets/mediatek/filogic/
+echo "Build completed successfully! Artifacts are located in bin/targets/mediatek/filogic/"

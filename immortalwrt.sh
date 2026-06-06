@@ -33,8 +33,4 @@ cp $REPO_DIR/${DEVICE_CONFIG} .config
 make defconfig
 make -j$(nproc)
 
-tree -L 1 bin/targets/mediatek/filogic/
-tree -L 1 .ccache/
-# ccache size
-du -hs .ccache/
 echo "Build completed successfully! Artifacts are located in bin/targets/mediatek/filogic/"
