@@ -48,6 +48,19 @@ echo $CCACHE_DIR
 echo "=== Cache dir contents BEFORE build ==="
 ls -la ${CCACHE_DIR} 2>/dev/null || echo "Cache dir is EMPTY or does not exist"
 
+# Configure ccache properly (OpenWrt official approach)
+CCACHE_BIN="staging_dir/host/bin/ccache"
+CCACHE_CONF="staging_dir/host/etc/ccache.conf"
+mkdir -p staging_dir/host/etc
+touch $CCACHE_CONF
+
+echo "compiler_type=gcc" >> $CCACHE_CONF
+echo "depend_mode=true" >> $CCACHE_CONF
+echo "sloppiness=file_macro,locale,time_macros,include_file_ctime,include_file_mtime" >> $CCACHE_CONF
+echo "max_size=4G" >> $CCACHE_CONF
+
+$CCACHE_BIN --zero-stats
+
 make -j$(nproc)
 
 echo "Build completed successfully! Artifacts are located in bin/targets/mediatek/filogic/"
