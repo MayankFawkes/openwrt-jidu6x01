@@ -58,6 +58,8 @@ echo "depend_mode=true" >> $CCACHE_CONF
 echo "sloppiness=file_macro,locale,time_macros,include_file_ctime,include_file_mtime" >> $CCACHE_CONF
 
 
-make -j$(nproc)
+MAKE_JOBS="${MAKE_JOBS:-$(nproc)}"
+echo "Starting OpenWrt build with -j${MAKE_JOBS} (verbose mode)"
+make -j"${MAKE_JOBS}" V=s
 
 echo "Build completed successfully! Artifacts are located in bin/targets/mediatek/filogic/"
