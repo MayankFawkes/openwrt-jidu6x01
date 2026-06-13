@@ -2,7 +2,6 @@
 set -e
 
 REPO_DIR=$(pwd)
-CCACHE_DIR="${CCACHE_DIR}"
 
 sudo apt update
 sudo apt install -y build-essential clang flex bison g++ gawk \
@@ -31,32 +30,7 @@ git log pr-23510 --oneline --grep="jio\|jidu" --regexp-ignore-case --format="%H"
 # Copy config and inject ccache dir dynamically
 cp $REPO_DIR/${DEVICE_CONFIG} .config
 
-sed -i '/CONFIG_CCACHE_DIR/d' .config
-echo "CONFIG_CCACHE_DIR=\"${CCACHE_DIR}\"" >> .config
-
-echo "ccache dir set to: ${CCACHE_DIR}"
-
 make defconfig
-
-# Verify after defconfig
-echo "=== CCACHE config in .config ==="
-grep "CCACHE" .config
-
-echo "=== CCACHE_DIR env ==="
-echo $CCACHE_DIR
-
-echo "=== Cache dir contents BEFORE build ==="
-ls -la ${CCACHE_DIR} 2>/dev/null || echo "Cache dir is EMPTY or does not exist"
-
-# Configure ccache properly (OpenWrt official approach)
-CCACHE_CONF="staging_dir/host/etc/ccache.conf"
-mkdir -p staging_dir/host/etc
-touch $CCACHE_CONF
-
-echo "compiler_type=gcc" >> $CCACHE_CONF
-echo "depend_mode=true" >> $CCACHE_CONF
-echo "sloppiness=file_macro,locale,time_macros,include_file_ctime,include_file_mtime" >> $CCACHE_CONF
-
 
 make -j$(nproc)
 

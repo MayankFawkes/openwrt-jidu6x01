@@ -6,10 +6,6 @@ on:
   schedule:
     - cron: "0 2 * * *" # At 02:00 AM
 
-env:
-  CCACHE_DIR: /home/runner/.ccache 
-
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,41 +16,21 @@ jobs:
         device:
           - name: jidu6101
             config: configs/.config-jidu6101
+          - name: jidu6101-mesh
+            config: configs/.config-jidu6101-mesh
+
           - name: jidu6j01 # jidu6201/6401/6601/6701
             config: configs/.config-jidu6j01
+          - name: jidu6j01-mesh # jidu6201/6401/6601/6701
+            config: configs/.config-jidu6j01-mesh
 
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Setup ccache
-      uses: actions/cache@v4
-      with:
-        path: ${{ env.CCACHE_DIR }}
-        key: ccache-immortalwrt-${{ runner.os }}-${{ matrix.device.name }}-${{ github.ref_name }}-${{ github.run_id }}
-        restore-keys: |
-          ccache-immortalwrt-${{ runner.os }}-${{ matrix.device.name }}-
-
-    - name: Restore ccache stats
-      if: always()
-      run: |
-        echo ""
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "  🗂️  ccache Contents"
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        tree -L 1 "$CCACHE_DIR"
-
-        echo ""
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "  💾 ccache Size"
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        du -hs "$CCACHE_DIR"
-        echo ""
-
     - name: Do Build
       env:
         DEVICE_CONFIG: ${{ matrix.device.config }}
-        CCACHE_DIR: ${{ env.CCACHE_DIR }}
       run: chmod +x immortalwrt.sh; bash immortalwrt.sh
 
     - name: Build Summary
@@ -103,24 +79,6 @@ jobs:
         echo "  📦 Selected Packages Count"
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         echo "  Total   : $(grep '^CONFIG_PACKAGE_.*=y' .config | wc -l) packages"
-
-        echo ""
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "  🗂️  ccache Contents"
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        tree -L 1 "$CCACHE_DIR"
-
-        echo ""
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "  💾 ccache Size"
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        du -hs "$CCACHE_DIR"
-
-        echo ""
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "  📊 ccache Stats"
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        staging_dir/host/bin/ccache -vv --show-stats
 
         echo ""
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
