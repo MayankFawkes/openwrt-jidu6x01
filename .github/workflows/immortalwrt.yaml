@@ -4,7 +4,7 @@ on:
   push:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *" # At 12:00 AM
+    - cron: "0 2 * * *" # At 02:00 AM
 
 env:
   CCACHE_DIR: /home/runner/.ccache 
