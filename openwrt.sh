@@ -24,6 +24,10 @@ git log pr-23510 --oneline --grep="jio\|jidu" --regexp-ignore-case --format="%H"
   grep -v $(git log --format="%H" | head -100 | tr '\n' '\|' | sed 's/|$//') | \
   xargs git cherry-pick -X theirs
 
+cat <<-EOF >> feeds.conf.default
+src-git --root=feeds fantastic_packages https://github.com/fantastic-packages/packages.git;master
+EOF
+
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 
