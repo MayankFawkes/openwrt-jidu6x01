@@ -101,3 +101,4 @@ jobs:
         path: |
           openwrt/bin/targets/mediatek/filogic/openwrt*.bin
           openwrt/bin/targets/mediatek/filogic/openwrt*.ubi
+          openwrt/bin/targets/mediatek/filogic/sha256sums

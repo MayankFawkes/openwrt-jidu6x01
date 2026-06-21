@@ -95,3 +95,4 @@ jobs:
         path: |
           immortalwrt/bin/targets/mediatek/filogic/immortalwrt*.bin
           immortalwrt/bin/targets/mediatek/filogic/immortalwrt*.ubi
+          immortalwrt/bin/targets/mediatek/filogic/sha256sums

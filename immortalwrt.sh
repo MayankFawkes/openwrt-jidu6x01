@@ -24,6 +24,7 @@ git log pr-23510 --oneline --grep="jio\|jidu" --regexp-ignore-case --format="%H"
   grep -v $(git log --format="%H" | head -100 | tr '\n' '\|' | sed 's/|$//') | \
   xargs git cherry-pick -X theirs
 
+echo "==============================adding initramfs-factory.ubi artifact to JIDU6101 and JIDU6J01=============================="
 # Add initramfs-factory.ubi artifact to JIDU6101 and JIDU6J01
 FILOGIC_MK="target/linux/mediatek/image/filogic.mk"
 
@@ -51,10 +52,35 @@ for DEV in jiorouter_ax6000-jidu6101 jiorouter_ax6000-jidu6j01; do
     { print }
   ' "$FILOGIC_MK" > "${FILOGIC_MK}.tmp" && mv "${FILOGIC_MK}.tmp" "$FILOGIC_MK"
 done
+echo "==============================finished adding initramfs-factory.ubi artifact to JIDU6101 and JIDU6J01=============================="
 
-cat <<-EOF >> feeds.conf.default
-src-git --root=feeds fantastic_packages https://github.com/fantastic-packages/packages.git;master
+echo "==============================adding fantastic package feeds=============================="
+# --- Add fantastic-packages runtime feed (baked into firmware) ---
+VER="25.12"
+ARCH="aarch64_cortex-a53"
+KEYID="20241123170031"   # from the grep above, WITHOUT the .pub extension
+
+mkdir -p files/etc/apk/repositories.d
+mkdir -p files/etc/apk/keys
+
+# Correct feed URLs (github.io, not openwrt.org)
+cat > files/etc/apk/repositories.d/customfeeds.list <<EOF
+https://fantastic-packages.github.io/releases/${VER}/packages/${ARCH}/luci/packages.adb
+https://fantastic-packages.github.io/releases/${VER}/packages/${ARCH}/packages/packages.adb
+https://fantastic-packages.github.io/releases/${VER}/packages/${ARCH}/special/packages.adb
 EOF
+
+# Public key so apk trusts the feed (no --allow-untrusted needed)
+curl -sSL -o "files/etc/apk/keys/${KEYID}.pem" \
+  "https://fantastic-packages.github.io/releases/${VER}/${KEYID}.pub"
+
+# Fail loudly if the key didn't download — don't ship a feed with no key
+if [ ! -s "files/etc/apk/keys/${KEYID}.pem" ]; then
+  echo "ERROR: fantastic-packages key download failed or empty"
+  exit 1
+fi
+echo "Successfully added fantastic-packages feed with key ${KEYID}.pem"
+echo "==============================finished adding fantastic package feeds=============================="
 
 ./scripts/feeds update -a
 ./scripts/feeds install -a
