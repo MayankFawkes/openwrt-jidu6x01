@@ -92,4 +92,6 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: immortalwrt-${{ matrix.device.name }}
-        path: immortalwrt/bin/targets/mediatek/filogic/immortalwrt*.bin
+        path: |
+          immortalwrt/bin/targets/mediatek/filogic/immortalwrt*.bin
+          immortalwrt/bin/targets/mediatek/filogic/immortalwrt*.ubi

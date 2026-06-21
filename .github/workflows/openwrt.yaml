@@ -98,4 +98,6 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: openwrt-${{ matrix.device.name }}
-        path: openwrt/bin/targets/mediatek/filogic/openwrt*.bin
+        path: |
+          openwrt/bin/targets/mediatek/filogic/openwrt*.bin
+          openwrt/bin/targets/mediatek/filogic/openwrt*.ubi
