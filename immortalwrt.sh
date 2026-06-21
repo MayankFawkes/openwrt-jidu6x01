@@ -54,6 +54,18 @@ for DEV in jiorouter_ax6000-jidu6101 jiorouter_ax6000-jidu6j01; do
 done
 echo "==============================finished adding initramfs-factory.ubi artifact to JIDU6101 and JIDU6J01=============================="
 
+cat <<-EOF >> feeds.conf.default
+src-git --root=feeds fantastic_packages https://github.com/fantastic-packages/packages.git;master
+EOF
+
+./scripts/feeds update -a
+./scripts/feeds install -a
+
+# Copy config and inject ccache dir dynamically
+cp $REPO_DIR/${DEVICE_CONFIG} .config
+
+make defconfig
+
 echo "==============================adding fantastic package feeds=============================="
 # --- Add fantastic-packages runtime feed (baked into firmware) ---
 VER="25.12"
@@ -81,14 +93,6 @@ if [ ! -s "files/etc/apk/keys/${KEYID}.pem" ]; then
 fi
 echo "Successfully added fantastic-packages feed with key ${KEYID}.pem"
 echo "==============================finished adding fantastic package feeds=============================="
-
-./scripts/feeds update -a
-./scripts/feeds install -a
-
-# Copy config and inject ccache dir dynamically
-cp $REPO_DIR/${DEVICE_CONFIG} .config
-
-make defconfig
 
 make -j$(nproc)
 

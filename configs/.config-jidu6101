@@ -1724,7 +1724,7 @@ CONFIG_BUSYBOX_DEFAULT_FEATURE_IPC_SYSLOG_BUFFER_SIZE=0
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_KMSG_SYSLOG is not set
 # CONFIG_PACKAGE_busybox-selinux is not set
 CONFIG_PACKAGE_ca-bundle=y
-# CONFIG_PACKAGE_ca-certificates is not set
+CONFIG_PACKAGE_ca-certificates=y
 # CONFIG_PACKAGE_dnsmasq is not set
 # CONFIG_PACKAGE_dnsmasq-dhcpv6 is not set
 # CONFIG_PACKAGE_dnsmasq-full is not set
@@ -4606,8 +4606,8 @@ CONFIG_PACKAGE_libblobmsg-json=y
 # CONFIG_PACKAGE_libcomerr is not set
 # CONFIG_PACKAGE_libconfig is not set
 # CONFIG_PACKAGE_libctf is not set
-# CONFIG_PACKAGE_libcurl is not set
-# CONFIG_PACKAGE_libcurl-gnutls is not set
+CONFIG_PACKAGE_libcurl=y
+CONFIG_PACKAGE_libcurl-gnutls=y
 # CONFIG_PACKAGE_libdaemon is not set
 # CONFIG_PACKAGE_libdaq3 is not set
 # CONFIG_PACKAGE_libdb47 is not set
@@ -7708,3 +7708,10 @@ CONFIG_PACKAGE_luci-proto-wireguard=y
 # SSL - switch to openssl
 CONFIG_PACKAGE_libustream-openssl=y
 # CONFIG_PACKAGE_libustream-mbedtls is not set
+
+# Fantastic additional packages
+# CONFIG_FEED_fantastic_packages is not set
+CONFIG_PACKAGE_internet-detector=y
+CONFIG_PACKAGE_luci-app-internet-detector=y
+CONFIG_PACKAGE_luci-app-temp-status=y
+CONFIG_PACKAGE_luci-app-cpu-status=y
