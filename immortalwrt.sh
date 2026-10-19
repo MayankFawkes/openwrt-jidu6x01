@@ -11,24 +11,29 @@ python3-setuptools rsync swig unzip zlib1g-dev file wget ccache tree
 git clone https://github.com/immortalwrt/immortalwrt.git
 cd immortalwrt
 
-git checkout v25.12.0
+git checkout v25.12.2
 
-git config --global user.email "ci@build.local"
-git config --global user.name "CI Builder"
-
-# Fetch the PR
-git fetch https://github.com/openwrt/openwrt.git pull/23510/head:pr-23510
-
-# Get only Jio-related commits and cherry-pick them dynamically
-git log pr-23510 --oneline --grep="jio\|jidu" --regexp-ignore-case --format="%H"| tac | \
-  grep -v $(git log --format="%H" | head -100 | tr '\n' '\|' | sed 's/|$//') | \
-  xargs git cherry-pick -X theirs
+# Backport all three commits from OpenWrt PR #23510 to this release.
+# The upstream commits conflict with ImmortalWrt's U-Boot configuration and
+# DEVICE_PACKAGES, so use a rebased patch that preserves its automount package.
+JIO_PATCH="$REPO_DIR/patches/immortalwrt-25.12.2-jiorouter.patch"
+if git apply --reverse --check "$JIO_PATCH" 2>/dev/null; then
+  echo "JioRouter backport already applied, skipping"
+else
+  git apply --check "$JIO_PATCH"
+  git apply "$JIO_PATCH"
+fi
 
 echo "==============================adding initramfs-factory.ubi artifact to JIDU6101 and JIDU6J01=============================="
 # Add initramfs-factory.ubi artifact to JIDU6101 and JIDU6J01
 FILOGIC_MK="target/linux/mediatek/image/filogic.mk"
 
 for DEV in jiorouter_ax6000-jidu6101 jiorouter_ax6000-jidu6j01; do
+  if ! grep -Fxq "define Device/$DEV" "$FILOGIC_MK"; then
+    echo "ERROR: missing device definition for $DEV" >&2
+    exit 1
+  fi
+
   # Skip if this device already has the artifact (idempotent)
   if awk "/^define Device\/${DEV}\$/,/^endef/" "$FILOGIC_MK" | grep -q "initramfs-factory.ubi"; then
     echo "[$DEV] initramfs-factory.ubi already present, skipping"
@@ -51,6 +56,11 @@ for DEV in jiorouter_ax6000-jidu6101 jiorouter_ax6000-jidu6j01; do
     }
     { print }
   ' "$FILOGIC_MK" > "${FILOGIC_MK}.tmp" && mv "${FILOGIC_MK}.tmp" "$FILOGIC_MK"
+
+  if ! awk "/^define Device\/${DEV}\$/,/^endef/" "$FILOGIC_MK" | grep -q "ARTIFACT/initramfs-factory.ubi"; then
+    echo "ERROR: failed to add initramfs-factory.ubi for $DEV" >&2
+    exit 1
+  fi
 done
 echo "==============================finished adding initramfs-factory.ubi artifact to JIDU6101 and JIDU6J01=============================="
 

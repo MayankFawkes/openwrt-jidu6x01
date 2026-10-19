@@ -11,18 +11,10 @@ python3-setuptools rsync swig unzip zlib1g-dev file wget ccache tree
 git clone https://github.com/openwrt/openwrt.git
 cd openwrt
 
-git checkout v25.12.5
+git checkout v25.12.6
 
-git config --global user.email "ci@build.local"
-git config --global user.name "CI Builder"
-
-# Fetch the PR
-git fetch origin pull/23510/head:pr-23510 --force
-
-# Get only Jio-related commits and cherry-pick them dynamically
-git log pr-23510 --oneline --grep="jio\|jidu" --regexp-ignore-case --format="%H"| tac | \
-  grep -v $(git log --format="%H" | head -100 | tr '\n' '\|' | sed 's/|$//') | \
-  xargs git cherry-pick -X theirs
+# This release includes JIDU6101/JIDU6J01 support and all fixes from PR #23510.
+# Reapplying the PR would cherry-pick changes already backported to stable.
 
 
 echo "==============================adding initramfs-factory.ubi artifact to JIDU6101 and JIDU6J01=============================="
@@ -30,6 +22,11 @@ echo "==============================adding initramfs-factory.ubi artifact to JID
 FILOGIC_MK="target/linux/mediatek/image/filogic.mk"
 
 for DEV in jiorouter_ax6000-jidu6101 jiorouter_ax6000-jidu6j01; do
+  if ! grep -Fxq "define Device/$DEV" "$FILOGIC_MK"; then
+    echo "ERROR: missing device definition for $DEV" >&2
+    exit 1
+  fi
+
   # Skip if this device already has the artifact (idempotent)
   if awk "/^define Device\/${DEV}\$/,/^endef/" "$FILOGIC_MK" | grep -q "initramfs-factory.ubi"; then
     echo "[$DEV] initramfs-factory.ubi already present, skipping"
@@ -52,6 +49,11 @@ for DEV in jiorouter_ax6000-jidu6101 jiorouter_ax6000-jidu6j01; do
     }
     { print }
   ' "$FILOGIC_MK" > "${FILOGIC_MK}.tmp" && mv "${FILOGIC_MK}.tmp" "$FILOGIC_MK"
+
+  if ! awk "/^define Device\/${DEV}\$/,/^endef/" "$FILOGIC_MK" | grep -q "ARTIFACT/initramfs-factory.ubi"; then
+    echo "ERROR: failed to add initramfs-factory.ubi for $DEV" >&2
+    exit 1
+  fi
 done
 echo "==============================finished adding initramfs-factory.ubi artifact to JIDU6101 and JIDU6J01=============================="
 
